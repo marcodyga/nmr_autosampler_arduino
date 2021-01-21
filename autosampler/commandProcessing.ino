@@ -16,10 +16,6 @@ void comport_proc() {
           unexpectedError = 9;
           errorcode = '9';
           break;
-        case 75: //K
-          // Receive calibration value to store in EEPROM
-          recvCalForEEPROM();
-          break;
         case 77: //M
           // Measure sample at position.
           i = getPositionNumber();
@@ -299,6 +295,26 @@ void numpad_proc() {
           writeLEDs(0,1,1);
           buzz(100);
           delay(2500);
+        } else if(currentKey == 'A') {
+          listening++;
+        }
+      } else if(listening == 7) {
+        if(currentKey == '*') {
+          // press * to run a full test.
+          bool continueFlag = false;
+          customWriteLCD("Insert NMR tubes  then press *  ");
+          while(!continueFlag) {
+            delay(100);
+            currentKey = i2cKeypad.getKey();
+            if(currentKey == 'D' or currentKey == '#') {
+              // cancel
+              continueFlag = true;
+            } else if(currentKey == '*') {
+              listening = 0;
+              continueFlag = true;
+              test();
+            }
+          }
         } else if(currentKey == 'A') {
           // go to "move to position" mode when A is pressed again
           listening = 1;

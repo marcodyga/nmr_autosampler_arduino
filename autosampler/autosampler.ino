@@ -51,6 +51,7 @@ int calib_stepsize = 1;
 int send_next = 100; // amount of milliseconds until the next message with the errorcode is sent to the COM-port.
 int lcd_ticks = 0;
 short lastHolder = 0;
+bool lockLCD = false; // prevents the loop from writing to the LCD display - only custom messages will be shown.
 
 // Explanation: stepsize is the inverse "step size" (on the stepper driver board), multiplied by 4. 
 // For example, if 1/16-steps are configured, this value should be 64 (or 128 if motor can do 400 steps per revolution).
@@ -414,32 +415,37 @@ bool galgenCheck() {
 }
 
 void test() {
-  for(int n = 1; n <= 25; n++) {
-    /*int pos = n*8;
-    while(pos>32) {
-      pos -= 31;
-    }*/
-    int pos = 31;
-    if(n%4 == 0) {
-      pos = 1;
-    } else if(n%4 == 1) {
-      pos = 9;
-    } else if(n%4 == 2) {
-      pos = 17;
-    } else if(n%4 == 3) {
-      pos = 25;
+  homing();
+  for(int n = 0; n <= 65; n++) {
+    int pos = 0;
+    if(n == 0 or n == 65) {
+      // tests position 32 at beginning and end
+      pos = 32;
+    } else {
+      // tests all positions except 32
+      pos = n*8;
+      while(pos >= 32) {
+        pos -= 31;
+      }
     }
+    lockLCD = true;
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Testing...      ");
     lcd.setCursor(0,1);
-    lcd.print("n="+String(n)+"; pos="+String(pos));
-    measureSample(pos);
-    //delay(2000);
+    lcd.print("n="+String(n)+"/65; pos="+String(pos));
+    measureSample(pos, true);
+    lastHolder = pos;
+    if(unexpectedError > 3) {
+      lockLCD = false;
+      break;
+    }
     returnSample(pos);
     delay(2000);
     if(unexpectedError > 3) {
+      lockLCD = false;
       break;
     }
   }
+  lockLCD = false;
 }

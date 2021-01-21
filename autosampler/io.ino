@@ -70,7 +70,6 @@ int getPositionNumber() {
 
    Keep in mind that an int spans 2 positions!
 
-   They are set by calling recvCalForEEPROM() (by sending "K" to the Serial port).
 */
 
 void getCalFromEEPROM() {
@@ -83,79 +82,6 @@ void getCalFromEEPROM() {
   // the positions of the air servo for venting and for pushing the NMR tube.
   AIR_PUSH = readIntFromEEPROM(200);
   AIR_VENT = readIntFromEEPROM(210);
-}
-
-int recvCalForEEPROM() {
-  // Save the calibration value, which is received from the PC, into EEPROM.
-  // Returns -1 if invalid input, 1 otherwise.
-  // Called by sending "K" to the Serial port
-  // The next three digits will be the position. If it is less than 100, then leading zeros must be specified ("007" instead of "7").
-  int eepromPosition = 0;
-  // Hunderterstellen
-  int nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    eepromPosition += nextDigit * 100;
-  } else {
-    return -1;
-  }
-  // Zehnerstellen
-  nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    eepromPosition += nextDigit * 10;
-  } else {
-    return -1;
-  }
-  // Einserstellen
-  nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    eepromPosition += nextDigit;
-  } else {
-    return -1;
-  }
-  // The next five digits will then be the int value for calibration.
-  int newValue = 0;
-  // Zehntausenderstellen
-  nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    newValue += nextDigit * 10000;
-  } else {
-    return -1;
-  }
-  // Tausenderstellen
-  nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    newValue += nextDigit * 1000;
-  } else {
-    return -1;
-  }
-  // Hunderterstellen
-  nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    newValue += nextDigit * 100;
-  } else {
-    return -1;
-  }
-  // Zehnerstellen
-  nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    newValue += nextDigit * 10;
-  } else {
-    return -1;
-  }
-  // Einserstellen
-  nextDigit = getNextDigit();
-  if (nextDigit > -1) {
-    newValue += nextDigit;
-  } else {
-    return -1;
-  }
-  // Compare value with the value stored in EEPROM currently
-  int oldValue = readIntFromEEPROM(eepromPosition);
-  if (oldValue != newValue) {
-    // If they differ, save the new value.
-    writeIntIntoEEPROM(eepromPosition, newValue);
-  }
-  return 1;
 }
 
 void writeIntIntoEEPROM(int address, int number) { 
@@ -247,125 +173,130 @@ void buzz(int ms) {
 void writeLCD() {
   // this must be called repeatedly in the loop, it will update the LCD, whenever
   // necessary.  
-  if(listening == 1) {
-    // show input until now, if a number is going to be entered via the numpad
-    CurrentDisplayString = "Go to holder #: ";
-    if(numpadKeysPressed[0] != -1) {
-      CurrentDisplayString += String(numpadKeysPressed[0]);
-    }
-    if(numpadKeysPressed[1] != -1) {
-      CurrentDisplayString += String(numpadKeysPressed[1]);
-    }
-    CurrentDisplayString += "_";
-  } else if(runMotor == true or isRunning == true) {
-    CurrentDisplayString =  "    Motor is    ";
-    CurrentDisplayString += "    running!    ";
-  } else if(unexpectedError == 4 or unexpectedError == 5) {
-    if(lcd_ticks < 1000) {
-      CurrentDisplayString =  "   Error when   ";
-      CurrentDisplayString += "    pushing!    ";
+  if(!lockLCD) {
+    if(listening == 1) {
+      // show input until now, if a number is going to be entered via the numpad
+      CurrentDisplayString = "Go to holder #: ";
+      if(numpadKeysPressed[0] != -1) {
+        CurrentDisplayString += String(numpadKeysPressed[0]);
+      }
+      if(numpadKeysPressed[1] != -1) {
+        CurrentDisplayString += String(numpadKeysPressed[1]);
+      }
+      CurrentDisplayString += "_";
+    } else if(runMotor == true or isRunning == true) {
+      CurrentDisplayString =  "    Motor is    ";
+      CurrentDisplayString += "    running!    ";
+    } else if(unexpectedError == 4 or unexpectedError == 5) {
+      if(lcd_ticks < 1000) {
+        CurrentDisplayString =  "   Error when   ";
+        CurrentDisplayString += "    pushing!    ";
+      } else {
+        CurrentDisplayString =  "   (Press D to  ";
+        CurrentDisplayString += "     unlock)    ";
+      }
+    } else if(unexpectedError == 6) {
+      if(lcd_ticks < 1000) {
+        CurrentDisplayString =  "Remove sample at";
+        CurrentDisplayString += "   Holder 32!   ";
+      } else {
+        CurrentDisplayString =  " Press D to un- ";
+        CurrentDisplayString += "lock afterwards.";
+      }
+    } else if(unexpectedError == 7) {
+      if(lcd_ticks < 1000) {
+        CurrentDisplayString =  "Error: Could not";
+        CurrentDisplayString += " eject sample!  ";
+      } else {
+        CurrentDisplayString =  "   (Press D to  ";
+        CurrentDisplayString += "     unlock)    ";
+      }
+    } else if(unexpectedError == 8) {
+      if(lcd_ticks < 1000) {
+        CurrentDisplayString =  "Error: Could not";
+        CurrentDisplayString += "detect sample in";
+      } else {
+        CurrentDisplayString =  "Holder " + String(lastHolder) + "!";
+        CurrentDisplayString += " (D to unlock)  ";
+      }
+    } else if(unexpectedError == 9) {
+      if(lcd_ticks < 1000) {
+        CurrentDisplayString =  " Unknown error  ";
+        CurrentDisplayString += " from outside!  ";
+      } else {
+        CurrentDisplayString =  "   (Press D to  ";
+        CurrentDisplayString += "     unlock)    ";
+      }
+    } else if(errorcode == '2' and listening != 4) {
+      CurrentDisplayString =  "Pusher is stuck!";
+      CurrentDisplayString += "Please check... ";
+    } else if(listening == 2) {
+      CurrentDisplayString =  " Press 1 to in- ";
+      CurrentDisplayString += "sert, 2 to eject";
+    } else if(listening == 3) {
+      CurrentDisplayString =  "Press * to run  ";
+      CurrentDisplayString += "a homing.       ";
+    } else if(listening == 4) {
+      CurrentDisplayString =  "RotorCalibration";
+      CurrentDisplayString += "St:" + String(calib_stepsize);
+      for(i=0; i<(4-String(calib_stepsize).length()); i++) {
+        CurrentDisplayString += " ";
+      }
+      CurrentDisplayString += "Pos:";
+      CurrentDisplayString += String(myStepper.currentPosition());
+    } else if(listening == 5) {
+      CurrentDisplayString =  "PusherServo cal.";
+      CurrentDisplayString += "St:" + String(calib_stepsize);
+      for(i=0; i<(4-String(calib_stepsize).length()); i++) {
+        CurrentDisplayString += " ";
+      }
+      CurrentDisplayString += "Pos:";
+      CurrentDisplayString += String(pusherServo.read());
+    } else if(listening == 6) {
+      CurrentDisplayString =  "AirServo calibr.";
+      CurrentDisplayString += "St:" + String(calib_stepsize);
+      for(i=0; i<(4-String(calib_stepsize).length()); i++) {
+        CurrentDisplayString += " ";
+      }
+      CurrentDisplayString += "Pos:";
+      CurrentDisplayString += String(airServo.read());
+    } else if(listening == 7) {
+      CurrentDisplayString =  "Press * to start";
+      CurrentDisplayString += "a full test.    ";
+    } else if(runMeasurement != -1) {
+      // if that is not the case, but a measurement is running, display, which sample is currently measured
+      CurrentDisplayString =  "Measuring sample";
+      if(runMeasurement != 0) {
+        CurrentDisplayString += "at Holder " + String(runMeasurement);
+      }
     } else {
-      CurrentDisplayString =  "   (Press D to  ";
-      CurrentDisplayString += "     unlock)    ";
+      //CurrentDisplayString = String(readIntFromEEPROM(0)) + "." + String(readIntFromEEPROM(100)) + "." + String(readIntFromEEPROM(110)) + "." 
+      //   + String(readIntFromEEPROM(200)) + "." + String(readIntFromEEPROM(210));  // debugging calibration values
+      CurrentDisplayString =  " NMR-Killer     ";
+      CurrentDisplayString += "                ";
+      if(lcd_ticks == 0) {
+        lcd.setCursor(1,1);
+        lcd.print("/");
+      } else if(lcd_ticks == 500) {
+        lcd.setCursor(1,1);
+        lcd.print("-");
+      } else if(lcd_ticks == 1000) {
+        lcd.setCursor(1,1);
+        lcd.print("`");
+      } else if(lcd_ticks == 1500) {
+        lcd.setCursor(1,1);
+        lcd.print("|");
+      }
     }
-  } else if(unexpectedError == 6) {
-    if(lcd_ticks < 1000) {
-      CurrentDisplayString =  "Remove sample at";
-      CurrentDisplayString += "   Holder 32!   ";
-    } else {
-      CurrentDisplayString =  " Press D to un- ";
-      CurrentDisplayString += "lock afterwards.";
+    if(CurrentDisplayString != LastDisplayString) {
+      // update LCD
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(CurrentDisplayString.substring(0,16));
+      lcd.setCursor(0,1);
+      lcd.print(CurrentDisplayString.substring(16,32));
+      LastDisplayString = CurrentDisplayString;
     }
-  } else if(unexpectedError == 7) {
-    if(lcd_ticks < 1000) {
-      CurrentDisplayString =  "Error: Could not";
-      CurrentDisplayString += " eject sample!  ";
-    } else {
-      CurrentDisplayString =  "   (Press D to  ";
-      CurrentDisplayString += "     unlock)    ";
-    }
-  } else if(unexpectedError == 8) {
-    if(lcd_ticks < 1000) {
-      CurrentDisplayString =  "Error: Could not";
-      CurrentDisplayString += "detect sample in";
-    } else {
-      CurrentDisplayString =  "Holder " + String(lastHolder) + "!";
-      CurrentDisplayString += " (D to unlock)  ";
-    }
-  } else if(unexpectedError == 9) {
-    if(lcd_ticks < 1000) {
-      CurrentDisplayString =  " Unknown error  ";
-      CurrentDisplayString += " from outside!  ";
-    } else {
-      CurrentDisplayString =  "   (Press D to  ";
-      CurrentDisplayString += "     unlock)    ";
-    }
-  } else if(errorcode == '2' and listening != 4) {
-    CurrentDisplayString =  "Pusher is stuck!";
-    CurrentDisplayString += "Please check... ";
-  } else if(listening == 2) {
-    CurrentDisplayString =  " Press 1 to in- ";
-    CurrentDisplayString += "sert, 2 to eject";
-  } else if(listening == 3) {
-    CurrentDisplayString =  "Press * to run  ";
-    CurrentDisplayString += "a homing.       ";
-  } else if(listening == 4) {
-    CurrentDisplayString =  "RotorCalibration";
-    CurrentDisplayString += "St:" + String(calib_stepsize);
-    for(i=0; i<(4-String(calib_stepsize).length()); i++) {
-      CurrentDisplayString += " ";
-    }
-    CurrentDisplayString += "Pos:";
-    CurrentDisplayString += String(myStepper.currentPosition());
-  } else if(listening == 5) {
-    CurrentDisplayString =  "PusherServo cal.";
-    CurrentDisplayString += "St:" + String(calib_stepsize);
-    for(i=0; i<(4-String(calib_stepsize).length()); i++) {
-      CurrentDisplayString += " ";
-    }
-    CurrentDisplayString += "Pos:";
-    CurrentDisplayString += String(pusherServo.read());
-  } else if(listening == 6) {
-    CurrentDisplayString =  "AirServo calibr.";
-    CurrentDisplayString += "St:" + String(calib_stepsize);
-    for(i=0; i<(4-String(calib_stepsize).length()); i++) {
-      CurrentDisplayString += " ";
-    }
-    CurrentDisplayString += "Pos:";
-    CurrentDisplayString += String(airServo.read());
-  } else if(runMeasurement != -1) {
-    // if that is not the case, but a measurement is running, display, which sample is currently measured
-    CurrentDisplayString =  "Measuring sample";
-    if(runMeasurement != 0) {
-      CurrentDisplayString += "at Holder " + String(runMeasurement);
-    }
-  } else {
-    //CurrentDisplayString = String(readIntFromEEPROM(0)) + "." + String(readIntFromEEPROM(100)) + "." + String(readIntFromEEPROM(110)) + "." 
-    //   + String(readIntFromEEPROM(200)) + "." + String(readIntFromEEPROM(210));  // debugging calibration values
-    CurrentDisplayString =  " NMR-Killer     ";
-    CurrentDisplayString += "                ";
-    if(lcd_ticks == 0) {
-      lcd.setCursor(1,1);
-      lcd.print("/");
-    } else if(lcd_ticks == 500) {
-      lcd.setCursor(1,1);
-      lcd.print("-");
-    } else if(lcd_ticks == 1000) {
-      lcd.setCursor(1,1);
-      lcd.print("`");
-    } else if(lcd_ticks == 1500) {
-      lcd.setCursor(1,1);
-      lcd.print("|");
-    }
-  }
-  if(CurrentDisplayString != LastDisplayString) {
-    // update LCD
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(CurrentDisplayString.substring(0,16));
-    lcd.setCursor(0,1);
-    lcd.print(CurrentDisplayString.substring(16,32));
-    LastDisplayString = CurrentDisplayString;
   }
   lcd_ticks++;
   if(lcd_ticks > 2000) {
