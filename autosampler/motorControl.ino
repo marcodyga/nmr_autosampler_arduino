@@ -181,5 +181,5 @@ void calibration() {
   // on the screen must then be added into the main code of the autosampler into the 
   // variable "POS1".
   bool failed = homing();
-  listening = 3;
+  listening = 4;
 }

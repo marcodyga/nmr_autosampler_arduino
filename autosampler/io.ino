@@ -260,10 +260,6 @@ void writeLCD() {
   } else if(runMotor == true or isRunning == true) {
     CurrentDisplayString =  "    Motor is    ";
     CurrentDisplayString += "    running!    ";
-  } else if(runMeasurement != -1) {
-    // if that is not the case, but a measurement is running, display, which sample is currently measured
-    CurrentDisplayString =  "Measuring sample";
-    CurrentDisplayString += "at Holder " + String(runMeasurement);
   } else if(unexpectedError == 4 or unexpectedError == 5) {
     if(lcd_ticks < 1000) {
       CurrentDisplayString =  "   Error when   ";
@@ -308,9 +304,12 @@ void writeLCD() {
     CurrentDisplayString =  "Pusher is stuck!";
     CurrentDisplayString += "Please check... ";
   } else if(listening == 2) {
+    CurrentDisplayString =  " Press 1 to in- ";
+    CurrentDisplayString += "sert, 2 to eject";
+  } else if(listening == 3) {
     CurrentDisplayString =  "Press * to run  ";
     CurrentDisplayString += "a homing.       ";
-  } else if(listening == 3) {
+  } else if(listening == 4) {
     CurrentDisplayString =  "RotorCalibration";
     CurrentDisplayString += "St:" + String(calib_stepsize);
     for(i=0; i<(4-String(calib_stepsize).length()); i++) {
@@ -318,7 +317,7 @@ void writeLCD() {
     }
     CurrentDisplayString += "Pos:";
     CurrentDisplayString += String(myStepper.currentPosition());
-  } else if(listening == 4) {
+  } else if(listening == 5) {
     CurrentDisplayString =  "PusherServo cal.";
     CurrentDisplayString += "St:" + String(calib_stepsize);
     for(i=0; i<(4-String(calib_stepsize).length()); i++) {
@@ -326,7 +325,7 @@ void writeLCD() {
     }
     CurrentDisplayString += "Pos:";
     CurrentDisplayString += String(pusherServo.read());
-  } else if(listening == 5) {
+  } else if(listening == 6) {
     CurrentDisplayString =  "AirServo calibr.";
     CurrentDisplayString += "St:" + String(calib_stepsize);
     for(i=0; i<(4-String(calib_stepsize).length()); i++) {
@@ -334,6 +333,12 @@ void writeLCD() {
     }
     CurrentDisplayString += "Pos:";
     CurrentDisplayString += String(airServo.read());
+  } else if(runMeasurement != -1) {
+    // if that is not the case, but a measurement is running, display, which sample is currently measured
+    CurrentDisplayString =  "Measuring sample";
+    if(runMeasurement != 0) {
+      CurrentDisplayString += "at Holder " + String(runMeasurement);
+    }
   } else {
     //CurrentDisplayString = String(readIntFromEEPROM(0)) + "." + String(readIntFromEEPROM(100)) + "." + String(readIntFromEEPROM(110)) + "." 
     //   + String(readIntFromEEPROM(200)) + "." + String(readIntFromEEPROM(210));  // debugging calibration values

@@ -246,7 +246,7 @@ void loop() {
     writeLEDs(2,0,0);
   } else if(runMotor == true) {
     writeLEDs(0,1,0);
-  } else if(listening == 3 or listening == 4) {
+  } else if(listening == 4 or listening == 5) {
     writeLEDs(0,2,2);
   } else if(errorcode == '3') {
     writeLEDs(0,2,1);
@@ -312,27 +312,36 @@ void measureSample(int sample, bool inQueue=false) {
       }
       delay(500);
       writeLEDs(0,2,0);
-      setAirHard(true);
-      setPusher(true);
-      delay(1000);
-      // now check if the sample is actually there and if it can be lifted to the top with the compressed air.
-      bool removed = galgenCheck();
-      // if the sample could not be detected by the light bridge, cancel the stuff and return error 8.
-      if(removed == false) {
-        setAirHard(false);
-        setPusher(false);
-        unexpectedError = 8;
-      } else {
-        // now gently insert the sample into the spectrometer.
-        setAir(false);
-        // use the pusher to check if the sample is stuck. If it is, the setPusher function will raise an unexpected Error.
-        delay(500);
-        setPusher(false);
-        delay(3000);
-        if(unexpectedError == 0) {
-          runMeasurement = sample;
-        }
+      bool inserted = insertSample();
+      if(inserted) {
+        runMeasurement = sample;
       }
+    }
+  }
+}
+
+bool insertSample() {
+  // Insert a sample. Returns true if sample was inserted, false if no sample was detected.
+  setAirHard(true);
+  setPusher(true);
+  delay(1000);
+  // now check if the sample is actually there and if it can be lifted to the top with the compressed air.
+  bool removed = galgenCheck();
+  // if the sample could not be detected by the light bridge, cancel the stuff and return error 8.
+  if(removed == false) {
+    setAirHard(false);
+    setPusher(false);
+    unexpectedError = 8;
+    return false;
+  } else {
+    // now gently insert the sample into the spectrometer.
+    setAir(false);
+    // use the pusher to check if the sample is stuck. If it is, the setPusher function will raise an unexpected Error.
+    delay(500);
+    setPusher(false);
+    delay(1000);
+    if(unexpectedError == 0) {
+      return true;
     }
   }
 }

@@ -8,6 +8,8 @@ void comport_proc() {
     input = Serial.read();
     if(input != -1) {
       //Serial.println(input);
+      //Initialize variable which might be needed later
+      bool success = false;
       switch(input) {
         case 69: //E
           // Raise error from outside
@@ -52,9 +54,22 @@ void comport_proc() {
         case 100: //d
           setAir(false);
           break;
+        case 101: //e
+          // "eject"
+          success = removeSample();
+          if(success) {
+            runMeasurement = -1;
+          }
+          break;
         case 104: //h
           homing();
           break;
+        case 105: //i
+          success = insertSample();
+          if(success) {
+            runMeasurement = 0;
+            listening = 0;
+          }
         case 107: //k
           calibration();
           break;
@@ -106,10 +121,15 @@ void numpad_proc() {
   if(currentKey != NO_KEY) {
     // A fresh key has been pressed. Decide what to do.
     if(currentKey == 'D') {
-      // press D -> Reset error mode, turn off listening and calibration mode, cancel measurement mode
-      listening = 0;
-      unexpectedError = 0;
-      runMeasurement = -1;
+      // press D -> Reset error mode, turn off listening and calibration mode, 
+      // if not in listening mode and no error is present, cancel measurement mode.
+      if(unexpectedError != 0) {
+        unexpectedError = 0;
+      } else if (listening != 0) {
+        listening = 0;
+      } else {
+        runMeasurement = -1;
+      }
     } else {
       //-------------------------------------
       // START OF CALIBRATION MODE PART
@@ -160,6 +180,27 @@ void numpad_proc() {
           listening++;
         }
       } else if(listening == 2) {
+        if(currentKey == '1') {
+          bool success = insertSample();
+          if(success) {
+            runMeasurement = 0;
+            listening = 0;
+          }
+        } else if(currentKey == '2') {
+          bool success = removeSample();
+          if(success) {
+            runMeasurement = -1;
+          }
+        } else if(currentKey == 'A') {
+          // if no measurement is running, go to calibration mode
+          // otherwise return to "go to holder"
+          if(runMeasurement == -1) {
+            listening++;
+          } else {
+            listening = 1;
+          }
+        }
+      } else if(listening == 3) {
         // before the calibration of the rotor, a homing must be done to find the position 0.
         if(currentKey == '*') {
           // press * to run a homing.
@@ -167,7 +208,7 @@ void numpad_proc() {
         } else if(currentKey == 'A') {
           listening++;
         }
-      } else if(listening == 3) {
+      } else if(listening == 4) {
         // for the Calibration, the position should move forward when * is pressed and backward when # is pressed.
         // the step size (in variable j) can be changed with the numbers in the numpad.
         cP = myStepper.currentPosition();
@@ -198,7 +239,7 @@ void numpad_proc() {
           }
           listening++;
         } 
-      } else if(listening == 4) {
+      } else if(listening == 5) {
         // The Calibration of the Pusher should work the same way as that for the rotor.
         if(isdigit(currentKey)) {
           // change step size to i^2
@@ -228,9 +269,9 @@ void numpad_proc() {
           delay(2500);
         } else if(currentKey == 'A') {
           // go to air calibration mode when A is pressed again
-          listening = 5;
+          listening++;
         } 
-      } else if(listening == 5) {
+      } else if(listening == 6) {
         // Calibration of the air servo, also works the same way as the other ones above.
         if(isdigit(currentKey)) {
           // change step size to i^2

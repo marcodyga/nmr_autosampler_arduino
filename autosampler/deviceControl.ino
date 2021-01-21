@@ -117,10 +117,9 @@ void setAirHard(bool air) {
 }
 
 void pusherCalibration() {
-  listening = 4;
-}
-
-void airCalibration() {
   listening = 5;
 }
 
+void airCalibration() {
+  listening = 6;
+}
