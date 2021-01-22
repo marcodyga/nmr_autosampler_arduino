@@ -176,7 +176,7 @@ void writeLCD() {
   if(!lockLCD) {
     if(listening == 1) {
       // show input until now, if a number is going to be entered via the numpad
-      CurrentDisplayString = "Go to holder #: ";
+      CurrentDisplayString = F("Go to holder #: ");
       if(numpadKeysPressed[0] != -1) {
         CurrentDisplayString += String(numpadKeysPressed[0]);
       }
@@ -185,59 +185,46 @@ void writeLCD() {
       }
       CurrentDisplayString += "_";
     } else if(runMotor == true or isRunning == true) {
-      CurrentDisplayString =  "    Motor is    ";
-      CurrentDisplayString += "    running!    ";
+      CurrentDisplayString = F("    Motor is        running!    ");
     } else if(unexpectedError == 4 or unexpectedError == 5) {
       if(lcd_ticks < 1000) {
-        CurrentDisplayString =  "   Error when   ";
-        CurrentDisplayString += "    pushing!    ";
+        CurrentDisplayString = F("   Error when       pushing!    ");
       } else {
-        CurrentDisplayString =  "   (Press D to  ";
-        CurrentDisplayString += "     unlock)    ";
+        CurrentDisplayString = F("   (Press D to       unlock)    ");
       }
     } else if(unexpectedError == 6) {
       if(lcd_ticks < 1000) {
-        CurrentDisplayString =  "Remove sample at";
-        CurrentDisplayString += "   Holder 32!   ";
+        CurrentDisplayString = F("Remove sample at   Holder 32!   ");;
       } else {
-        CurrentDisplayString =  " Press D to un- ";
-        CurrentDisplayString += "lock afterwards.";
+        CurrentDisplayString = F(" Press D to un- lock afterwards.");
       }
     } else if(unexpectedError == 7) {
       if(lcd_ticks < 1000) {
-        CurrentDisplayString =  "Error: Could not";
-        CurrentDisplayString += " eject sample!  ";
+        CurrentDisplayString = F("Error: Could not eject sample!  ");
       } else {
-        CurrentDisplayString =  "   (Press D to  ";
-        CurrentDisplayString += "     unlock)    ";
+        CurrentDisplayString = F("   (Press D to       unlock)    ");;
       }
     } else if(unexpectedError == 8) {
       if(lcd_ticks < 1000) {
-        CurrentDisplayString =  "Error: Could not";
-        CurrentDisplayString += "detect sample in";
+        CurrentDisplayString = F("Error: Could notdetect sample in");
       } else {
-        CurrentDisplayString =  "Holder " + String(lastHolder) + "!";
-        CurrentDisplayString += " (D to unlock)  ";
+        CurrentDisplayString =  String(F("Holder ")) + String(lastHolder) + "!" + String(F(" (D to unlock)  "));
       }
     } else if(unexpectedError == 9) {
       if(lcd_ticks < 1000) {
-        CurrentDisplayString =  " Unknown error  ";
-        CurrentDisplayString += " from outside!  ";
+        CurrentDisplayString = F(" Unknown error   from outside!  ");
       } else {
-        CurrentDisplayString =  "   (Press D to  ";
-        CurrentDisplayString += "     unlock)    ";
+        CurrentDisplayString =  F("   (Press D to  ");
+        CurrentDisplayString += F("     unlock)    ");
       }
     } else if(errorcode == '2' and listening != 4) {
-      CurrentDisplayString =  "Pusher is stuck!";
-      CurrentDisplayString += "Please check... ";
+      CurrentDisplayString = F("Pusher is stuck!Please check... ");
     } else if(listening == 2) {
-      CurrentDisplayString =  " Press 1 to in- ";
-      CurrentDisplayString += "sert, 2 to eject";
+      CurrentDisplayString = F(" Press 1 to in- sert, 2 to eject");
     } else if(listening == 3) {
-      CurrentDisplayString =  "Press * to run  ";
-      CurrentDisplayString += "a homing.       ";
+      CurrentDisplayString = F("Press * to run  a homing.       ");;
     } else if(listening == 4) {
-      CurrentDisplayString =  "RotorCalibration";
+      CurrentDisplayString =  String(F("RotorCalibration"));
       CurrentDisplayString += "St:" + String(calib_stepsize);
       for(i=0; i<(4-String(calib_stepsize).length()); i++) {
         CurrentDisplayString += " ";
@@ -245,7 +232,7 @@ void writeLCD() {
       CurrentDisplayString += "Pos:";
       CurrentDisplayString += String(myStepper.currentPosition());
     } else if(listening == 5) {
-      CurrentDisplayString =  "PusherServo cal.";
+      CurrentDisplayString =  String(F("PusherServo cal."));
       CurrentDisplayString += "St:" + String(calib_stepsize);
       for(i=0; i<(4-String(calib_stepsize).length()); i++) {
         CurrentDisplayString += " ";
@@ -253,7 +240,7 @@ void writeLCD() {
       CurrentDisplayString += "Pos:";
       CurrentDisplayString += String(pusherServo.read());
     } else if(listening == 6) {
-      CurrentDisplayString =  "AirServo calibr.";
+      CurrentDisplayString =  String(F("AirServo calibr."));
       CurrentDisplayString += "St:" + String(calib_stepsize);
       for(i=0; i<(4-String(calib_stepsize).length()); i++) {
         CurrentDisplayString += " ";
@@ -261,19 +248,18 @@ void writeLCD() {
       CurrentDisplayString += "Pos:";
       CurrentDisplayString += String(airServo.read());
     } else if(listening == 7) {
-      CurrentDisplayString =  "Press * to start";
-      CurrentDisplayString += "a full test.    ";
+      CurrentDisplayString =  F("Press * to starta full test.    ");
     } else if(runMeasurement != -1) {
       // if that is not the case, but a measurement is running, display, which sample is currently measured
-      CurrentDisplayString =  "Measuring sample";
+      CurrentDisplayString =  F("Measuring sample");
       if(runMeasurement != 0) {
-        CurrentDisplayString += "at Holder " + String(runMeasurement);
+        CurrentDisplayString += String(F("at Holder ")) + String(runMeasurement);
       }
     } else {
       //CurrentDisplayString = String(readIntFromEEPROM(0)) + "." + String(readIntFromEEPROM(100)) + "." + String(readIntFromEEPROM(110)) + "." 
       //   + String(readIntFromEEPROM(200)) + "." + String(readIntFromEEPROM(210));  // debugging calibration values
-      CurrentDisplayString =  " NMR-Killer     ";
-      CurrentDisplayString += "                ";
+      CurrentDisplayString =  F(" NMR-Killer     ");
+      CurrentDisplayString += F("                ");
       if(lcd_ticks == 0) {
         lcd.setCursor(1,1);
         lcd.print("/");
