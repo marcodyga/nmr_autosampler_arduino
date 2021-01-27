@@ -85,6 +85,7 @@ void comport_proc() {
           listening = 0;
           unexpectedError = 0;
           runMeasurement = -1;
+          lockLCD = false;
           break;
         case 115: //s
           // set speed
@@ -119,7 +120,9 @@ void numpad_proc() {
     if(currentKey == 'D') {
       // press D -> Reset error mode, turn off listening and calibration mode, 
       // if not in listening mode and no error is present, cancel measurement mode.
-      if(unexpectedError != 0) {
+      if(lockLCD) {
+        lockLCD = false;
+      } else if(unexpectedError != 0) {
         unexpectedError = 0;
       } else if (listening != 0) {
         listening = 0;

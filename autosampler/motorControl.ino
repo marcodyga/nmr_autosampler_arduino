@@ -143,7 +143,10 @@ bool homing() {
     } else {
       // the flag is not at the promised position, this should never really happen
       // if you run into this error consider slowing down the rotor
+      // or maybe the motor flange is not properly connected to the shaft
       failed = true;
+      lockLCD = true;
+      customWriteLCD("     Homing          failed!    ");
       buzz(2000);
     }
   }
