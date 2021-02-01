@@ -258,7 +258,7 @@ void writeLCD() {
     } else {
       //CurrentDisplayString = String(readIntFromEEPROM(0)) + "." + String(readIntFromEEPROM(100)) + "." + String(readIntFromEEPROM(110)) + "." 
       //   + String(readIntFromEEPROM(200)) + "." + String(readIntFromEEPROM(210));  // debugging calibration values
-      CurrentDisplayString =  F(" NMR-Killer     ");
+      CurrentDisplayString =  F(" RotoMate       ");
       CurrentDisplayString += F("                ");
       if(lcd_ticks == 0) {
         lcd.setCursor(1,1);
