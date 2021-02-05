@@ -53,9 +53,11 @@ int lcd_ticks = 0;
 short lastHolder = 0;
 bool lockLCD = false; // prevents the loop from writing to the LCD display - only custom messages will be shown.
 
-// Explanation: stepsize is the inverse "step size" (on the stepper driver board), multiplied by 4. 
-// For example, if 1/16-steps are configured, this value should be 64 (or 128 if motor can do 400 steps per revolution).
-// The number of steps per revolution is always 50*stepsize
+// The "step size" of the stepper motor driving the rotor.
+// Set this value such that the number of steps per revolution is 50*stepsize.
+// For a motor with 200 steps per revolution, stepsize is the inverse "microstep revolution" (on the stepper driver 
+// shield), multiplied by 4. For example, if 1/16-steps are configured, this value should be 64. 
+// For a motor with 400 steps per revolution and a microstep resolution of 1/16, this value would be 128.
 int stepsize = 64; 
 
 // Standard speed
@@ -107,7 +109,7 @@ String LastDisplayString = "";
 String CurrentDisplayString = "";
 
 // Keypad stuff
-#define keypadAddress 0x20                          // I2C Address of the PCF8574 breakout board for the keypad. Can be set using the jumpers on the board, don't ask how.
+#define keypadAddress 0x20 // I2C Address of the PCF8574 breakout board for the keypad. Can be set using the jumpers on the board.
 const byte keypadRows = 4;
 const byte keypadCols = 4;
 char keypadLayout[keypadRows][keypadCols] = {
