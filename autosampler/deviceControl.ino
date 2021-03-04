@@ -6,13 +6,13 @@ void setPusher(bool push) {
   bool pushed = false;
   writeLEDs(0,1,0);
   if(push == true) {
-    if(starting_status != PUSHER_PUSH) {
-      pusherServo.write(PUSHER_PUSH);
+    if(starting_status != SLIDER_PUSH) {
+      pusherServo.write(SLIDER_PUSH);
       pushed = true;
     }
   } else {
-    if(starting_status != PUSHER_PULL) {
-      pusherServo.write(PUSHER_PULL);
+    if(starting_status != SLIDER_PULL) {
+      pusherServo.write(SLIDER_PULL);
       pushed = true;
     }
   }
@@ -48,8 +48,8 @@ void setPusher(bool push) {
         break;
       }
     }
-    if(starting_status == PUSHER_PUSH and (unexpectedError == 4 or unexpectedError == 5)) {
-      pusherServo.write(PUSHER_PUSH);
+    if(starting_status == SLIDER_PUSH and (unexpectedError == 4 or unexpectedError == 5)) {
+      pusherServo.write(SLIDER_PUSH);
     }
     pushed = false;
   }

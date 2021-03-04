@@ -16,9 +16,9 @@
 // Calibration values are stored in Arduino's EEPROM (see the io.ino for details).
 // After calibration of the motor, add here the position of Holder 1 !
 int POS1;
-// After calibration of the Pusher, add here the positions for start and end points.
-short PUSHER_PUSH;
-short PUSHER_PULL;
+// After calibration of the Pusher/Slider, add here the positions for start and end points.
+short SLIDER_PUSH;
+short SLIDER_PULL;
 // After calibration of the Air servo, add there the positions of the servo for venting and for pushing the NMR tube.
 short AIR_PUSH;
 short AIR_VENT;
@@ -141,7 +141,7 @@ void setup() {
   // Servo
   pinMode(pusherPin,OUTPUT);
   pinMode(airServoPin, OUTPUT);
-  pusherServo.write(PUSHER_PULL);
+  pusherServo.write(SLIDER_PULL);
   pusherServo.attach(pusherPin);
   airServo.write(AIR_VENT);
   airServo.attach(airServoPin);

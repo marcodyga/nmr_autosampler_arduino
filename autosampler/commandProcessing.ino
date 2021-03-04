@@ -251,18 +251,18 @@ void numpad_proc() {
           // move backward when # is pressed
           pusherServo.write(pusherServo.read() - calib_stepsize);
         } else if(currentKey == 'B') {
-          // B --> Confirm PUSHER_PUSH as calibrated and save it into EEPROM.
-          PUSHER_PUSH = pusherServo.read();
-          writeIntIntoEEPROM(100, PUSHER_PUSH);
-          customWriteLCD("Saved new value PUSHER_PUSH=" + String(PUSHER_PUSH));
+          // B --> Confirm SLIDER_PUSH as calibrated and save it into EEPROM.
+          SLIDER_PUSH = pusherServo.read();
+          writeIntIntoEEPROM(100, SLIDER_PUSH);
+          customWriteLCD("Saved new value SLIDER_PUSH=" + String(SLIDER_PUSH));
           writeLEDs(0,1,1);
           buzz(100);
           delay(2500);
         } else if(currentKey == 'C') {
-          // C --> Confirm PUSHER_PULL as calibrated and save it into EEPROM.
-          PUSHER_PULL = pusherServo.read();
-          writeIntIntoEEPROM(110, PUSHER_PULL);
-          customWriteLCD("Saved new value PUSHER_PULL=" + String(PUSHER_PULL));
+          // C --> Confirm SLIDER_PULL as calibrated and save it into EEPROM.
+          SLIDER_PULL = pusherServo.read();
+          writeIntIntoEEPROM(110, SLIDER_PULL);
+          customWriteLCD("Saved new value SLIDER_PULL=" + String(SLIDER_PULL));
           writeLEDs(0,1,1);
           buzz(100);
           delay(2500);
@@ -332,7 +332,7 @@ void numpad_proc() {
         } else if(currentKey == 'B') {
           // toggle the pusher
           listening = 0;
-          if(pusherServo.read() != PUSHER_PULL) {
+          if(pusherServo.read() != SLIDER_PULL) {
             setPusher(false);
             setAirHard(false);
           } else {
@@ -344,7 +344,7 @@ void numpad_proc() {
           if(airStatus == 1) {
             setAir(false);
           } else {
-            if(pusherServo.read() == PUSHER_PUSH) {
+            if(pusherServo.read() == SLIDER_PUSH) {
               setAir(true);
             } else {
               setPusher(true);

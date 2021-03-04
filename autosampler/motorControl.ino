@@ -14,7 +14,7 @@ void rotate() {
     // if an unexpected error has occured, the motor should not move either.
     if(wasStuck == false) {
       // only run the motor if it wasn't stuck before.
-      if(pusherServo.read() == PUSHER_PULL) {
+      if(pusherServo.read() == SLIDER_PULL) {
         // check here for Pusher, if it is extended, the motor shouldn't move.
         // movement function should be blocking !
         cP = myStepper.currentPosition();

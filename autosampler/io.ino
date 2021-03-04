@@ -63,8 +63,8 @@ int getPositionNumber() {
    Pos. | Value
    -----+----------------------------------------------------------------------
       0 | Motor calibration (POS1)
-    100 | Pushing position of Pusher (PUSHER_PUSH)
-    110 | Fully retracted position of pusher (PUSHER_PULL)
+    100 | Pushing position of Pusher (SLIDER_PUSH)
+    110 | Fully retracted position of pusher (SLIDER_PULL)
     200 | Position of Air Servo for connecting air and spectrometer (AIR_PUSH)
     210 | Position of Air Servo for venting air (AIR_VENT)
 
@@ -77,8 +77,8 @@ void getCalFromEEPROM() {
   // the position of Holder 1 !
   POS1 = readIntFromEEPROM(0);
   // the positions for start and end points of the Pusher.
-  PUSHER_PUSH = readIntFromEEPROM(100);
-  PUSHER_PULL = readIntFromEEPROM(110);
+  SLIDER_PUSH = readIntFromEEPROM(100);
+  SLIDER_PULL = readIntFromEEPROM(110);
   // the positions of the air servo for venting and for pushing the NMR tube.
   AIR_PUSH = readIntFromEEPROM(200);
   AIR_VENT = readIntFromEEPROM(210);
@@ -218,7 +218,7 @@ void writeLCD() {
         CurrentDisplayString += F("     unlock)    ");
       }
     } else if(errorcode == '2' and listening != 4) {
-      CurrentDisplayString = F("Pusher is stuck!Please check... ");
+      CurrentDisplayString = F("Slider is stuck!Please check... ");
     } else if(listening == 2) {
       CurrentDisplayString = F(" Press 1 to in- sert, 2 to eject");
     } else if(listening == 3) {
@@ -232,7 +232,7 @@ void writeLCD() {
       CurrentDisplayString += "Pos:";
       CurrentDisplayString += String(myStepper.currentPosition());
     } else if(listening == 5) {
-      CurrentDisplayString =  String(F("PusherServo cal."));
+      CurrentDisplayString =  String(F("SliderServo cal."));
       CurrentDisplayString += "St:" + String(calib_stepsize);
       for(i=0; i<(4-String(calib_stepsize).length()); i++) {
         CurrentDisplayString += " ";
