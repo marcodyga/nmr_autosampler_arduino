@@ -332,7 +332,7 @@ bool insertSample() {
   bool removed = galgenCheck();
   // if the sample could not be detected by the light bridge, cancel the stuff and return error 8.
   if(removed == false) {
-    setAirHard(false);
+    setAir(false);
     setPusher(false);
     unexpectedError = 8;
     return false;
